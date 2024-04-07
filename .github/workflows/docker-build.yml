@@ -35,15 +35,15 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
+    - name: Install GitHub CLI
+      run: |
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+        sudo apt update
+        sudo apt install gh
+
+    - name: Login to GitHub CLI
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
     - name: Make the Docker image public
-      uses: actions/github-script@v7.0.1
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/')
-          const packageName = 'webhook-forwarder'
-          await github.rest.packages.updatePackageForAuthenticatedUser({
-            package_type: 'container',
-            package_name: packageName,
-            visibility: 'public'
-          })
+      run: gh package set-visibility public --package-type container --repo ${{ github.repository }} --package-name webhook-forwarder
