@@ -24,7 +24,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5.5.1
       with:
-        images: ghcr.io/${{ github.repository }}/webhook-forwarder
+        images: ghcr.io/${{ github.repository }}
 
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v5.3.0
@@ -34,16 +34,3 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-
-    - name: Install GitHub CLI
-      run: |
-        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-        sudo apt update
-        sudo apt install gh
-
-    - name: Login to GitHub CLI
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-
-    - name: Make the Docker image public
-      run: gh package set-visibility public --package-type container --repo ${{ github.repository }} --package-name webhook-forwarder
