@@ -8,6 +8,10 @@ const WEBHOOK_SITE_ADDRESS = process.env.WEBHOOK_SITE_ADDRESS;
 
 app.use(express.json());
 
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
 app.all('*', async (req, res) => {
     try {
         await axios.post(WEBHOOK_SITE_ADDRESS, req.body);
